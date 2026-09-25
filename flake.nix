@@ -14,7 +14,7 @@
 
         modules = [
           ({ pkgs, ... }: {
-            networking.hostName = "beterdanniet";
+            networking.hostName = "beterdannix";
 
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
