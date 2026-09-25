@@ -8,9 +8,12 @@
     "flakes"
   ];
 
-  # Hetzner disk layout.
-  #
-  # These labels must match the partitions you created during installation.
+  environment.systemPackages = with pkgs; [
+    vim
+    git
+  ];
+
+  # Matches the partitioning from the Hetzner traditional ISO guide.
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "ext4";
@@ -27,11 +30,13 @@
     }
   ];
 
-  # Boot configuration for a legacy BIOS/GRUB Hetzner installation.
-  boot.loader.grub = {
-    enable = true;
-    device = "/dev/sda";
-  };
+  time.timeZone = "Europe/Amsterdam";
+  i18n.defaultLocale = "en_US.UTF-8";
+  console.keyMap = "us";
+
+  # Hetzner x86_64 traditional installation uses legacy boot.
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "/dev/sda";
 
   boot.initrd.availableKernelModules = [
     "ahci"
@@ -43,28 +48,6 @@
     "ext4"
   ];
 
-  time.timeZone = "Europe/Amsterdam";
-
-  i18n.defaultLocale = "en_US.UTF-8";
-  console.keyMap = "us";
-
-  # Only SSH is exposed.
-  networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [ 22 ];
-  };
-
-  services.openssh = {
-    enable = true;
-
-    settings = {
-      PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
-      PermitRootLogin = "no";
-    };
-  };
-
-  # Disable direct root password login.
   users.users.root.hashedPassword = "!";
 
   users.users.midas = {
@@ -83,10 +66,20 @@
     ];
   };
 
-  environment.systemPackages = with pkgs; [
-    vim
-    git
-  ];
+  services.openssh = {
+    enable = true;
+
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+    };
+  };
+
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 22 ];
+  };
 
   system.stateVersion = "25.11";
 }
